@@ -3,8 +3,7 @@ import requests
 import datetime
 import time
 from decimal import Decimal
-from pprint import pprint
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 
 
 app = Flask(__name__)
@@ -86,6 +85,21 @@ def main_page():
     departure_flights = closest_schedule(0)
     arrival_flights = closest_schedule(1)
     return render_template('main.html', weather=weather, departure_flights=departure_flights, arrival_flights=arrival_flights)
+
+
+@app.route('/kyiv_weather')
+def api_weather():
+    return jsonify(get_weather())
+
+
+@app.route('/departures')
+def api_departures():
+    return jsonify(closest_schedule(0))
+
+
+@app.route('/arrivals')
+def api_arrivals():
+    return jsonify(closest_schedule(1))
     
 
 if __name__ == '__main__':
