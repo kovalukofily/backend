@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Airport (Draft)</title>
+</head>
+<body>
+    <h1>Welcome to the main page!</h1>
+    <h3>Weather</h3>
+    <p>Weather in Kyiv: {{ weather.description }}, {{ weather.temperature }}C</p>
+    <h3>Departures</h3>
+    {% for flight in departure_flights %}
+    <p>
+        {{ flight.time }} {{ flight.number }} {{ flight.city }}
+    </p>
+    {% endfor %}
+    <h3>Arrivals</h3>
+    {% for flight in arrival_flights %}
+    <p>
+        {{ flight.time }} {{ flight.number }} {{ flight.city }}
+    </p>
+    {% endfor %}
+</body>
+</html>
