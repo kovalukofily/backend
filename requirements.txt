@@ -2,5 +2,4 @@ requests
 Flask
 Flask-Login
 Flask-Mail
-Jinja2
 gunicorn

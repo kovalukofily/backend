@@ -2,15 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>33c3885e-e088-4018-a6ff-890c0feacb50</ProjectGuid>
+    <ProjectGuid>b274e3f7-c0c9-4856-8bd8-cd5151a4e93c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>app.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>AirportProjectBackend</Name>
-    <RootNamespace>AirportProjectBackend</RootNamespace>
+    <Name>KovalukofilyBackend</Name>
+    <RootNamespace>KovalukofilyBackend</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,12 +22,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="templates\main.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="templates\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
