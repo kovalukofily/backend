@@ -3,7 +3,6 @@ import requests
 import datetime
 import time
 from decimal import Decimal
-from FileReader import read_spreadsheet
 from pprint import pprint
 from flask import Flask, render_template, request
 
@@ -43,7 +42,8 @@ def get_closest_dates_of_each_day():
 # type of schedule = 0 for departures, 1 for arrivals. Must be integer, not string
 def get_schedule_for_week(type_of_schedule):
     closest_days = get_closest_dates_of_each_day()
-    all_flights_in_theory = read_spreadsheet(type_of_schedule)
+    with open(f'schedule_{type_of_schedule}.json', 'r') as schedule_file:
+        all_flights_in_theory = json.load(schedule_file)
     all_flights_of_week = []
     for key, value in all_flights_in_theory.items():
         for weekday in range(1, 8):

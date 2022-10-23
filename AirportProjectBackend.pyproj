@@ -22,12 +22,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.py" />
-    <Compile Include="FileReader.py">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="credentials.json" />
     <Content Include="templates\main.html" />
   </ItemGroup>
   <ItemGroup>
