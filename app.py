@@ -89,18 +89,24 @@ def main_page():
 
 @app.route('/kyiv_weather')
 def api_weather():
-    return jsonify(get_weather())
+    response = jsonify(get_weather())
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 @app.route('/departures')
 def api_departures():
-    return jsonify(closest_schedule(0))
+    response = jsonify(closest_schedule(0))
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 @app.route('/arrivals')
 def api_arrivals():
-    return jsonify(closest_schedule(1))
-    
+    response = jsonify(closest_schedule(1))
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
 
 if __name__ == '__main__':
     app.run(port=443)
