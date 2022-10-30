@@ -2,11 +2,18 @@ import json
 import requests
 import datetime
 import time
+import socket
 from decimal import Decimal
 from flask import Flask, render_template, request, jsonify
 
 
 app = Flask(__name__)
+
+
+def fetch_details():
+    hostname = socket.gethostname()
+    ip = socket.gethostbyname(hostname)
+    return str(hostname), str(ip)
 
 
 # Returns weather in Kyiv
@@ -84,7 +91,8 @@ def main_page():
     weather = get_weather()
     departure_flights = closest_schedule(0)
     arrival_flights = closest_schedule(1)
-    return render_template('main.html', weather=weather, departure_flights=departure_flights, arrival_flights=arrival_flights)
+    hostname, ip = fetch_details()
+    return render_template('main.html', weather=weather, departure_flights=departure_flights, arrival_flights=arrival_flights, hostname=hostname, ip=ip)
 
 
 @app.route('/kyiv_weather')
@@ -108,5 +116,12 @@ def api_arrivals():
     return response
 
 
+@app.route('/health')
+def api_health():
+    response = jsonify(status="UP")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 if __name__ == '__main__':
-    app.run(port=443)
+    app.run(host='0.0.0.0', port=5000)
