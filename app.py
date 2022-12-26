@@ -1,12 +1,20 @@
+import os
 import json
 import requests
 import datetime
 import time
+import socket
 from decimal import Decimal
 from flask import Flask, render_template, request, jsonify
 
 
 app = Flask(__name__)
+
+
+def fetch_details():
+    hostname = socket.gethostname()
+    ip = socket.gethostbyname(hostname)
+    return str(hostname), str(ip)
 
 
 # Returns weather in Kyiv
@@ -20,26 +28,27 @@ def get_weather():
     return weather_short
 
 
-# Returns the day of closest Monday, Tuesday, etc. Technical function
-def get_closest_dates_of_each_day():
-    target_dict = {}
-    today = datetime.datetime.now()
-    today = today.replace(hour=0, minute=0, second=0, microsecond=0)
-    # In Python: 0 = Mon, 1 = Tue, ..., 6 = Sun; so we have to add 1 manually
-    pointer_weekday = today.weekday() + 1
-    pointer_date = today
-    for i in range(7):
-        target_dict[f'weekday{pointer_weekday}'] = pointer_date
-        pointer_weekday += 1
-        if pointer_weekday == 8:
-            pointer_weekday = 1
-        pointer_date += datetime.timedelta(days=1)
-    return target_dict
-
-
 # Returns the complete list of flights from today 00:00 until 6 days later 23:59
 # type of schedule = 0 for departures, 1 for arrivals. Must be integer, not string
-def get_schedule_for_week(type_of_schedule):
+@app.route('/schedule_week')
+def get_schedule_for_week():
+    type_of_schedule = request.args.get('type_of_schedule')
+    # Returns the day of closest Monday, Tuesday, etc. Technical function
+    def get_closest_dates_of_each_day():
+        target_dict = {}
+        today = datetime.datetime.now()
+        today = today.replace(hour=0, minute=0, second=0, microsecond=0)
+        # In Python: 0 = Mon, 1 = Tue, ..., 6 = Sun; so we have to add 1 manually
+        pointer_weekday = today.weekday() + 1
+        pointer_date = today
+        for i in range(7):
+            target_dict[f'weekday{pointer_weekday}'] = pointer_date
+            pointer_weekday += 1
+            if pointer_weekday == 8:
+                pointer_weekday = 1
+            pointer_date += datetime.timedelta(days=1)
+        return target_dict
+
     closest_days = get_closest_dates_of_each_day()
     with open(f'schedule_{type_of_schedule}.json', 'r') as schedule_file:
         all_flights_in_theory = json.load(schedule_file)
@@ -56,25 +65,38 @@ def get_schedule_for_week(type_of_schedule):
                     'time': closest_day_of_that_weekday + datetime.timedelta(hours=hours, minutes=minutes)
                     }
                 all_flights_of_week.append(flight)
-    return sorted(all_flights_of_week, key=lambda d: d['time'])
+    return jsonify(sorted(all_flights_of_week, key=lambda d: d['time']))
 
 
 # Returns the list 
 # type of schedule = 0 for departures, 1 for arrivals. Must be integer, not string
 def closest_schedule(type_of_schedule):
-    schedule_for_week = get_schedule_for_week(type_of_schedule)
+    converter = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+                 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
+    #schedule_for_week = get_schedule_for_week(type_of_schedule).json
+    schedule_for_week = requests.get(f'http://127.0.0.1:443/schedule_week?type_of_schedule={type_of_schedule}').json()
     display_start_time = datetime.datetime.now()
     if type_of_schedule == 1:
         display_start_time -= datetime.timedelta(hours=2)
     display_flights = []
     for flight in schedule_for_week:
-        if flight['time'] >= display_start_time:
+        flight_time = datetime.datetime(year=int(flight['time'][12:16]),
+                                        month=converter[flight['time'][8:11]],
+                                        day=int(flight['time'][5:7]),
+                                        hour=int(flight['time'][17:19]),
+                                        minute=int(flight['time'][20:22]))
+        if flight_time >= display_start_time:
             display_flights.append(flight)
         if len(display_flights) >= 30:
             break
     for flight in display_flights:
-        datetime_obj = flight['time']
-        flight['time'] = '{:02d}:{:02d}'.format(datetime_obj.hour, datetime_obj.minute)
+        #datetime_obj = flight['time']
+        flight_time = datetime.datetime(year=int(flight['time'][12:16]),
+                                        month=converter[flight['time'][8:11]],
+                                        day=int(flight['time'][5:7]),
+                                        hour=int(flight['time'][17:19]),
+                                        minute=int(flight['time'][20:22]))
+        flight['time'] = '{:02d}:{:02d}'.format(flight_time.hour, flight_time.minute)
     #flights_json = json.dumps(display_flights)
     return display_flights
 
@@ -84,7 +106,8 @@ def main_page():
     weather = get_weather()
     departure_flights = closest_schedule(0)
     arrival_flights = closest_schedule(1)
-    return render_template('main.html', weather=weather, departure_flights=departure_flights, arrival_flights=arrival_flights)
+    hostname, ip = fetch_details()
+    return render_template('main.html', weather=weather, departure_flights=departure_flights, arrival_flights=arrival_flights, hostname=hostname, ip=ip)
 
 
 @app.route('/kyiv_weather')
@@ -108,5 +131,12 @@ def api_arrivals():
     return response
 
 
+@app.route('/health')
+def api_health():
+    response = jsonify(status="UP")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 if __name__ == '__main__':
-    app.run(port=443)
+    app.run(host='0.0.0.0', port=os.environ.get("PORT", 443), debug=False)
