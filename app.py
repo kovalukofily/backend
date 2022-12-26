@@ -74,7 +74,7 @@ def closest_schedule(type_of_schedule):
     converter = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
                  'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
     #schedule_for_week = get_schedule_for_week(type_of_schedule).json
-    schedule_for_week = requests.get(f'http://127.0.0.1:443/schedule_week?type_of_schedule={type_of_schedule}').json()
+    schedule_for_week = requests.get(f'https://kovalukofily-lab3.herokuapp.com/schedule_week?type_of_schedule={type_of_schedule}').json()
     display_start_time = datetime.datetime.now()
     if type_of_schedule == 1:
         display_start_time -= datetime.timedelta(hours=2)
