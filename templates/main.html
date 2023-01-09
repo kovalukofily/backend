@@ -10,7 +10,7 @@
     <p>Weather in Kyiv: {{ weather.description }}, {{ weather.temperature }}C</p>
     <h3>Departures</h3>
     <table>
-        {% for flight in departure_flights %}
+        {% for flight in departure_flights.flights %}
         <tr>
             <td style="border: 1px solid black;">{{ flight.time }}</td>
             <td style="border: 1px solid black;">{{ flight.number }}</td>
@@ -20,7 +20,7 @@
     </table>
     <h3>Arrivals</h3>
     <table>
-        {% for flight in arrival_flights %}
+        {% for flight in arrival_flights.flights %}
         <tr>
             <td style="border: 1px solid black;">{{ flight.time }}</td>
             <td style="border: 1px solid black;">{{ flight.number }}</td>
@@ -28,5 +28,6 @@
         </tr>
         {% endfor %}
     </table>
+    <p>Response from {{ hostname }} with {{ ip }}</p>
 </body>
 </html>

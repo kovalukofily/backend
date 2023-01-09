@@ -19,11 +19,14 @@ def fetch_details():
 
 # Returns weather in Kyiv
 def get_weather():
+    start_time = time.time()
     weather_url = 'http://api.openweathermap.org/data/2.5/weather?q=Kyiv,ua&APPID=94a623b565f3f96b4137c967ef3ad363'
     response = requests.get(weather_url)
     final = json.loads(response.text)
     weather_short = {'description': final['weather'][0]['description'],
                         'temperature': int(round(Decimal(str(final['main']['temp']))-Decimal('273.15')))}
+    weather_short["exec_time"] = time.time() - start_time
+    print("Time Measurement f:get_weather {weather_short[exec_time]}")
     #weather_json = json.dumps(weather_short)
     return weather_short
 
@@ -71,6 +74,7 @@ def get_schedule_for_week():
 # Returns the list 
 # type of schedule = 0 for departures, 1 for arrivals. Must be integer, not string
 def closest_schedule(type_of_schedule):
+    start_time = time.time()
     converter = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
                  'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
     #schedule_for_week = get_schedule_for_week(type_of_schedule).json
@@ -98,7 +102,11 @@ def closest_schedule(type_of_schedule):
                                         minute=int(flight['time'][20:22]))
         flight['time'] = '{:02d}:{:02d}'.format(flight_time.hour, flight_time.minute)
     #flights_json = json.dumps(display_flights)
-    return display_flights
+    newdict = {}
+    newdict["flights"] = display_flights
+    newdict["exec_time"] = time.time() - start_time
+    print("Time Measurement f:closest_schedule {newdict[exec_time]}")
+    return newdict
 
 
 @app.route('/')
