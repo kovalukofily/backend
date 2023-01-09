@@ -26,7 +26,7 @@ def get_weather():
     weather_short = {'description': final['weather'][0]['description'],
                         'temperature': int(round(Decimal(str(final['main']['temp']))-Decimal('273.15')))}
     weather_short["exec_time"] = time.time() - start_time
-    print("Time Measurement f:get_weather {weather_short[exec_time]}")
+    print(f"Time Measurement f:get_weather {weather_short[exec_time]}")
     #weather_json = json.dumps(weather_short)
     return weather_short
 
@@ -105,7 +105,7 @@ def closest_schedule(type_of_schedule):
     newdict = {}
     newdict["flights"] = display_flights
     newdict["exec_time"] = time.time() - start_time
-    print("Time Measurement f:closest_schedule {newdict[exec_time]}")
+    print(f"Time Measurement f:closest_schedule {newdict[exec_time]}")
     return newdict
 
 
