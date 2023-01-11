@@ -69,9 +69,11 @@ def get_schedule_for_week():
                     }
                 all_flights_of_week.append(flight)
     response = jsonify(sorted(all_flights_of_week, key=lambda d: d['time']))
+    response.headers.add('Content-Type', 'application/json')
     response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-    response.headers.add('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
     return response
 
 
@@ -125,36 +127,44 @@ def main_page():
 @app.route('/kyiv_weather')
 def api_weather():
     response = jsonify(get_weather())
+    response.headers.add('Content-Type', 'application/json')
     response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-    response.headers.add('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
     return response
 
 
 @app.route('/departures')
 def api_departures():
     response = jsonify(closest_schedule(0))
+    response.headers.add('Content-Type', 'application/json')
     response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-    response.headers.add('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
     return response
 
 
 @app.route('/arrivals')
 def api_arrivals():
     response = jsonify(closest_schedule(1))
+    response.headers.add('Content-Type', 'application/json')
     response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-    response.headers.add('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
     return response
 
 
 @app.route('/health')
 def api_health():
     response = jsonify(status="UP")
+    response.headers.add('Content-Type', 'application/json')
     response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
-    response.headers.add('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
     return response
 
 
