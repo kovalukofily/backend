@@ -33,9 +33,7 @@ def get_weather():
 
 # Returns the complete list of flights from today 00:00 until 6 days later 23:59
 # type of schedule = 0 for departures, 1 for arrivals. Must be integer, not string
-@app.route('/schedule_week')
-def get_schedule_for_week():
-    type_of_schedule = request.args.get('type_of_schedule')
+def get_schedule_for_week(type_of_schedule):
     # Returns the day of closest Monday, Tuesday, etc. Technical function
     def get_closest_dates_of_each_day():
         target_dict = {}
@@ -68,45 +66,26 @@ def get_schedule_for_week():
                     'time': closest_day_of_that_weekday + datetime.timedelta(hours=hours, minutes=minutes)
                     }
                 all_flights_of_week.append(flight)
-    response = jsonify(sorted(all_flights_of_week, key=lambda d: d['time']))
-    response.headers.add('Content-Type', 'application/json')
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
-    return response
+    return sorted(all_flights_of_week, key=lambda d: d['time'])
 
 
 # Returns the list 
 # type of schedule = 0 for departures, 1 for arrivals. Must be integer, not string
 def closest_schedule(type_of_schedule):
     start_time = time.time()
-    converter = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
-                 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
-    #schedule_for_week = get_schedule_for_week(type_of_schedule).json
-    schedule_for_week = requests.get(f'https://kovalukofily-lab4.herokuapp.com/schedule_week?type_of_schedule={type_of_schedule}').json()
+    schedule_for_week = get_schedule_for_week(type_of_schedule)
     display_start_time = datetime.datetime.now()
     if type_of_schedule == 1:
         display_start_time -= datetime.timedelta(hours=2)
     display_flights = []
     for flight in schedule_for_week:
-        flight_time = datetime.datetime(year=int(flight['time'][12:16]),
-                                        month=converter[flight['time'][8:11]],
-                                        day=int(flight['time'][5:7]),
-                                        hour=int(flight['time'][17:19]),
-                                        minute=int(flight['time'][20:22]))
-        if flight_time >= display_start_time:
+        if flight['time'] >= display_start_time:
             display_flights.append(flight)
         if len(display_flights) >= 30:
             break
     for flight in display_flights:
-        #datetime_obj = flight['time']
-        flight_time = datetime.datetime(year=int(flight['time'][12:16]),
-                                        month=converter[flight['time'][8:11]],
-                                        day=int(flight['time'][5:7]),
-                                        hour=int(flight['time'][17:19]),
-                                        minute=int(flight['time'][20:22]))
-        flight['time'] = '{:02d}:{:02d}'.format(flight_time.hour, flight_time.minute)
+        datetime_obj = flight['time']
+        flight['time'] = '{:02d}:{:02d}'.format(datetime_obj.hour, datetime_obj.minute)
     #flights_json = json.dumps(display_flights)
     newdict = {}
     newdict["flights"] = display_flights
