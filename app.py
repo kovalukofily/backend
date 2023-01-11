@@ -68,7 +68,9 @@ def get_schedule_for_week():
                     'time': closest_day_of_that_weekday + datetime.timedelta(hours=hours, minutes=minutes)
                     }
                 all_flights_of_week.append(flight)
-    return jsonify(sorted(all_flights_of_week, key=lambda d: d['time']))
+    response = jsonify(sorted(all_flights_of_week, key=lambda d: d['time']))
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 # Returns the list 
