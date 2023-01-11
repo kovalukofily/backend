@@ -70,6 +70,7 @@ def get_schedule_for_week():
                 all_flights_of_week.append(flight)
     response = jsonify(sorted(all_flights_of_week, key=lambda d: d['time']))
     response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
     return response
 
 
@@ -124,6 +125,7 @@ def main_page():
 def api_weather():
     response = jsonify(get_weather())
     response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
     return response
 
 
@@ -131,6 +133,7 @@ def api_weather():
 def api_departures():
     response = jsonify(closest_schedule(0))
     response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
     return response
 
 
@@ -138,6 +141,7 @@ def api_departures():
 def api_arrivals():
     response = jsonify(closest_schedule(1))
     response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
     return response
 
 
@@ -145,6 +149,7 @@ def api_arrivals():
 def api_health():
     response = jsonify(status="UP")
     response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS')
     return response
 
 
