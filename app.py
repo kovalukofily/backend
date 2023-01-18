@@ -149,5 +149,12 @@ def api_health():
     return response
 
 
+@app.route('/health')
+def api_health():
+    response = jsonify(status="UP")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=os.environ.get("PORT", 443), debug=False)
+    app.run(host='0.0.0.0', port=os.environ.get("PORT", 5000), debug=False)
