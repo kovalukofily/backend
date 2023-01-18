@@ -4,6 +4,7 @@ import requests
 import datetime
 import time
 import socket
+import uuid
 from decimal import Decimal
 from flask import Flask, render_template, request, jsonify
 
@@ -14,40 +15,43 @@ app = Flask(__name__)
 def fetch_details():
     hostname = socket.gethostname()
     ip = socket.gethostbyname(hostname)
-    return str(hostname), str(ip)
+    instance_id = uuid.uuid4().hex
+    return str(hostname), str(ip), str(instance_id)
 
 
 # Returns weather in Kyiv
 def get_weather():
+    start_time = time.time()
     weather_url = 'http://api.openweathermap.org/data/2.5/weather?q=Kyiv,ua&APPID=94a623b565f3f96b4137c967ef3ad363'
     response = requests.get(weather_url)
     final = json.loads(response.text)
     weather_short = {'description': final['weather'][0]['description'],
                         'temperature': int(round(Decimal(str(final['main']['temp']))-Decimal('273.15')))}
+    weather_short["exec_time"] = time.time() - start_time
+    print(f"Time Measurement f:get_weather {weather_short['exec_time']}")
     #weather_json = json.dumps(weather_short)
     return weather_short
-
-
-# Returns the day of closest Monday, Tuesday, etc. Technical function
-def get_closest_dates_of_each_day():
-    target_dict = {}
-    today = datetime.datetime.now()
-    today = today.replace(hour=0, minute=0, second=0, microsecond=0)
-    # In Python: 0 = Mon, 1 = Tue, ..., 6 = Sun; so we have to add 1 manually
-    pointer_weekday = today.weekday() + 1
-    pointer_date = today
-    for i in range(7):
-        target_dict[f'weekday{pointer_weekday}'] = pointer_date
-        pointer_weekday += 1
-        if pointer_weekday == 8:
-            pointer_weekday = 1
-        pointer_date += datetime.timedelta(days=1)
-    return target_dict
 
 
 # Returns the complete list of flights from today 00:00 until 6 days later 23:59
 # type of schedule = 0 for departures, 1 for arrivals. Must be integer, not string
 def get_schedule_for_week(type_of_schedule):
+    # Returns the day of closest Monday, Tuesday, etc. Technical function
+    def get_closest_dates_of_each_day():
+        target_dict = {}
+        today = datetime.datetime.now()
+        today = today.replace(hour=0, minute=0, second=0, microsecond=0)
+        # In Python: 0 = Mon, 1 = Tue, ..., 6 = Sun; so we have to add 1 manually
+        pointer_weekday = today.weekday() + 1
+        pointer_date = today
+        for i in range(7):
+            target_dict[f'weekday{pointer_weekday}'] = pointer_date
+            pointer_weekday += 1
+            if pointer_weekday == 8:
+                pointer_weekday = 1
+            pointer_date += datetime.timedelta(days=1)
+        return target_dict
+
     closest_days = get_closest_dates_of_each_day()
     with open(f'schedule_{type_of_schedule}.json', 'r') as schedule_file:
         all_flights_in_theory = json.load(schedule_file)
@@ -70,6 +74,7 @@ def get_schedule_for_week(type_of_schedule):
 # Returns the list 
 # type of schedule = 0 for departures, 1 for arrivals. Must be integer, not string
 def closest_schedule(type_of_schedule):
+    start_time = time.time()
     schedule_for_week = get_schedule_for_week(type_of_schedule)
     display_start_time = datetime.datetime.now()
     if type_of_schedule == 1:
@@ -84,7 +89,11 @@ def closest_schedule(type_of_schedule):
         datetime_obj = flight['time']
         flight['time'] = '{:02d}:{:02d}'.format(datetime_obj.hour, datetime_obj.minute)
     #flights_json = json.dumps(display_flights)
-    return display_flights
+    newdict = {}
+    newdict["flights"] = display_flights
+    newdict["exec_time"] = time.time() - start_time
+    print(f"Time Measurement f:closest_schedule {newdict['exec_time']}")
+    return newdict
 
 
 @app.route('/')
@@ -92,28 +101,51 @@ def main_page():
     weather = get_weather()
     departure_flights = closest_schedule(0)
     arrival_flights = closest_schedule(1)
-    hostname, ip = fetch_details()
-    return render_template('main.html', weather=weather, departure_flights=departure_flights, arrival_flights=arrival_flights, hostname=hostname, ip=ip)
+    hostname, ip, instance_id = fetch_details()
+    return render_template('main.html', weather=weather, departure_flights=departure_flights, arrival_flights=arrival_flights, hostname=hostname, ip=ip, instance_id=instance_id)
 
 
 @app.route('/kyiv_weather')
 def api_weather():
     response = jsonify(get_weather())
+    response.headers.add('Content-Type', 'application/json')
     response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
     return response
 
 
 @app.route('/departures')
 def api_departures():
     response = jsonify(closest_schedule(0))
+    response.headers.add('Content-Type', 'application/json')
     response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
     return response
 
 
 @app.route('/arrivals')
 def api_arrivals():
     response = jsonify(closest_schedule(1))
+    response.headers.add('Content-Type', 'application/json')
     response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
+    return response
+
+
+@app.route('/health')
+def api_health():
+    response = jsonify(status="UP")
+    response.headers.add('Content-Type', 'application/json')
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Expose-Headers', 'Content-Type,Content-Length,Authorization,X-Pagination')
     return response
 
 
