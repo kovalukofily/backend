@@ -4,6 +4,7 @@ import requests
 import datetime
 import time
 import socket
+import uuid
 from decimal import Decimal
 from flask import Flask, render_template, request, jsonify
 
@@ -14,7 +15,8 @@ app = Flask(__name__)
 def fetch_details():
     hostname = socket.gethostname()
     ip = socket.gethostbyname(hostname)
-    return str(hostname), str(ip)
+    instance_id = uuid.uuid4().hex
+    return str(hostname), str(ip), str(instance_id)
 
 
 # Returns weather in Kyiv
@@ -99,8 +101,8 @@ def main_page():
     weather = get_weather()
     departure_flights = closest_schedule(0)
     arrival_flights = closest_schedule(1)
-    hostname, ip = fetch_details()
-    return render_template('main.html', weather=weather, departure_flights=departure_flights, arrival_flights=arrival_flights, hostname=hostname, ip=ip)
+    hostname, ip, instance_id = fetch_details()
+    return render_template('main.html', weather=weather, departure_flights=departure_flights, arrival_flights=arrival_flights, hostname=hostname, ip=ip, instance_id=instance_id)
 
 
 @app.route('/kyiv_weather')
